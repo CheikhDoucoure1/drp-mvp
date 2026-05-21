@@ -1,0 +1,97 @@
+{% extends "drp/base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block saas_page_title %}DRP récentes{% endblock %}
+{% block saas_page_sub %}<p class="drp-topbar-sub d-none d-sm-block mb-0">Suivez vos demandes de prix et les offres fournisseurs.</p>{% endblock %}
+{% block saas_topbar_actions %}
+<a href="{% url 'drp:drp_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouvelle DRP</a>
+{% endblock %}
+{% block content %}
+
+<div class="card drp-card mb-4">
+  <div class="card-header border-0 pb-0 pt-3 px-3 px-md-4">
+    <div class="drp-card-header-lead">Liste des demandes</div>
+    <div class="drp-card-header-muted">Titre, statut, date de clôture et nombre d’offres reçues.</div>
+  </div>
+  <div class="drp-table-wrap table-responsive">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Demande</th>
+          <th>Statut</th>
+          <th>Offres</th>
+          <th>Date de clôture</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in drps %}
+        <tr>
+          <td class="fw-semibold text-dark">{{ d.titre }}</td>
+          <td>
+            {% if d.statut == "en_cours" %}
+              <span class="badge badge-drp badge-drp-en-cours">En cours</span>
+            {% elif d.statut == "cloturee" %}
+              <span class="badge badge-drp badge-drp-cloturee">Clôturée</span>
+            {% else %}
+              <span class="badge badge-drp badge-drp-annulee">Annulée</span>
+            {% endif %}
+          </td>
+          <td class="drp-offers-cell">
+            {% if d.nb_offres %}
+              <strong>{{ d.nb_offres }}</strong> reçue{{ d.nb_offres|pluralize }}
+            {% else %}
+              <span class="text-secondary">—</span>
+            {% endif %}
+          </td>
+          <td class="text-secondary small">{{ d.date_cloture|date:"d/m/Y H:i" }}</td>
+          <td class="text-end text-nowrap">
+            {% if d.statut == "en_cours" %}
+            <a href="{% url 'drp:drp_update' d.pk %}" class="btn btn-sm btn-outline-secondary me-1">Modifier</a>
+            {% endif %}
+            <a href="{% url 'drp:drp_detail' d.pk %}" class="btn btn-sm btn-primary">Détail</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center py-5 text-secondary">
+            <i class="bi bi-inbox d-block fs-2 mb-2 opacity-25"></i>
+            Aucune DRP pour le moment. Créez votre première demande pour inviter les fournisseurs concernés.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="drp-stat-grid">
+  <div class="drp-stat-card">
+    <div class="drp-stat-icon drp-stat-icon--primary"><i class="bi bi-folder2-open"></i></div>
+    <div>
+      <p class="drp-stat-label">Total DRP</p>
+      <p class="drp-stat-value">{{ total_drp }}</p>
+    </div>
+  </div>
+  <div class="drp-stat-card">
+    <div class="drp-stat-icon drp-stat-icon--sky"><i class="bi bi-hourglass-split"></i></div>
+    <div>
+      <p class="drp-stat-label">En cours</p>
+      <p class="drp-stat-value">{{ drp_en_cours }}</p>
+    </div>
+  </div>
+  <div class="drp-stat-card">
+    <div class="drp-stat-icon drp-stat-icon--slate"><i class="bi bi-check2-circle"></i></div>
+    <div>
+      <p class="drp-stat-label">Clôturées</p>
+      <p class="drp-stat-value">{{ drp_cloturees }}</p>
+    </div>
+  </div>
+  <div class="drp-stat-card">
+    <div class="drp-stat-icon drp-stat-icon--rose"><i class="bi bi-x-octagon"></i></div>
+    <div>
+      <p class="drp-stat-label">Annulées</p>
+      <p class="drp-stat-value">{{ drp_annulees }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

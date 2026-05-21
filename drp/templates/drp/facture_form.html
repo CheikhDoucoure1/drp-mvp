@@ -1,0 +1,89 @@
+{% extends "drp/base.html" %}
+{% block title %}Saisir la facture — {{ drp.titre }}{% endblock %}
+{% block saas_page_title %}Facture fournisseur{% endblock %}
+{% block saas_page_sub %}
+<p class="drp-topbar-sub d-none d-md-block mb-0 text-truncate">
+  DRP : <strong>{{ drp.titre }}</strong> · Fournisseur retenu : <strong>{{ invitation.fournisseur.nom }}</strong>
+</p>
+{% endblock %}
+{% block content %}
+<div class="drp-page-toolbar">
+  <div></div>
+  <div class="drp-page-actions">
+    <a href="{% url 'drp:drp_detail' drp.pk %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i>Retour à la DRP
+    </a>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    {% if invitation.proforma %}
+    <div class="card drp-card mb-4">
+      <div class="card-header"><i class="bi bi-receipt me-2 text-primary opacity-75"></i>Proforma de référence</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <p class="text-secondary small mb-1">Prix proposé</p>
+            <p class="fw-semibold fs-5 mb-0">{{ invitation.proforma.prix|floatformat:0 }} FCFA</p>
+          </div>
+          <div class="col-sm-6">
+            <p class="text-secondary small mb-1">Délai proposé</p>
+            <p class="fw-semibold fs-5 mb-0">{{ invitation.proforma.delai_jours }} jours</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card drp-card">
+      <div class="card-header">
+        <i class="bi bi-file-earmark-text me-2 text-success opacity-75"></i>
+        {% if facture_existante %}Modifier la facture{% else %}Saisir la facture réelle{% endif %}
+      </div>
+      <div class="card-body">
+        <form method="post" class="drp-form">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.numero.id_for_label }}">{{ form.numero.label }}</label>
+            {{ form.numero }}
+            {% if form.numero.errors %}
+              <div class="invalid-feedback d-block">{{ form.numero.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.montant.id_for_label }}">{{ form.montant.label }}</label>
+            {{ form.montant }}
+            {% if invitation.proforma %}
+            <div class="form-text">Proforma : {{ invitation.proforma.prix|floatformat:0 }} FCFA — saisissez le montant réellement facturé.</div>
+            {% endif %}
+            {% if form.montant.errors %}
+              <div class="invalid-feedback d-block">{{ form.montant.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label" for="{{ form.date_facture.id_for_label }}">{{ form.date_facture.label }}</label>
+            {{ form.date_facture }}
+            {% if form.date_facture.errors %}
+              <div class="invalid-feedback d-block">{{ form.date_facture.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-check2 me-1"></i>
+              {% if facture_existante %}Mettre à jour{% else %}Enregistrer la facture{% endif %}
+            </button>
+            <a href="{% url 'drp:drp_detail' drp.pk %}" class="btn btn-outline-secondary">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

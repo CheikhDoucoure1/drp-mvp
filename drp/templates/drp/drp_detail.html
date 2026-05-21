@@ -1,0 +1,171 @@
+{% extends "drp/base.html" %}
+{% block title %}{{ drp.titre }}{% endblock %}
+{% block saas_page_title %}{{ drp.titre }}{% endblock %}
+{% block saas_page_sub %}
+<p class="drp-topbar-sub d-none d-md-block mb-0 text-truncate">
+  <i class="bi bi-calendar3 me-1"></i>Créée le {{ drp.created_at|date:"d/m/Y H:i" }}
+  <span class="mx-2 opacity-50">·</span>
+  <i class="bi bi-alarm me-1"></i>Date de clôture <strong>{{ drp.date_cloture|date:"d/m/Y H:i" }}</strong>
+</p>
+{% endblock %}
+{% block content %}
+<div class="drp-page-toolbar">
+  <div></div>
+  <div class="drp-page-actions">
+    {% if drp.statut == "en_cours" %}
+    <a href="{% url 'drp:drp_update' drp.pk %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    {% endif %}
+    {% if drp.statut == "cloturee" and drp.selected_invitation %}
+    <a href="{% url 'drp:facture_create' drp.pk %}" class="btn btn-success btn-sm"><i class="bi bi-file-earmark-text me-1"></i>{% if drp.selected_invitation.facture %}Modifier la facture{% else %}Saisir la facture{% endif %}</a>
+    {% endif %}
+    {% if drp.statut == "en_cours" or drp.statut == "annulee" %}
+    <a href="{% url 'drp:drp_delete' drp.pk %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>Supprimer</a>
+    {% endif %}
+    <a href="{% url 'drp:dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-lg-8">
+    <div class="card drp-card h-100">
+      <div class="card-header"><i class="bi bi-text-left me-2 text-primary opacity-75"></i>Description</div>
+      <div class="card-body">
+        <div class="mb-3 text-secondary" style="line-height:1.65;">{{ drp.description|linebreaks }}</div>
+        {% if drp.fichier %}
+        <p class="mt-3 mb-0">
+          <a href="{{ drp.fichier.url }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf me-1"></i>Pièce jointe (PDF)</a>
+        </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card drp-card h-100">
+      <div class="card-header"><i class="bi bi-flag me-2 text-primary opacity-75"></i>Statut</div>
+      <div class="card-body">
+        {% if drp.statut == "en_cours" %}
+          <p class="mb-2"><span class="badge badge-drp badge-drp-en-cours">En cours</span></p>
+          {% if limite_depassee %}
+          <p class="small text-warning mb-0"><i class="bi bi-exclamation-triangle me-1"></i>La date de clôture est dépassée ; les fournisseurs ne peuvent plus soumettre d’offres.</p>
+          {% endif %}
+        {% elif drp.statut == "cloturee" %}
+          <p class="mb-2"><span class="badge badge-drp badge-drp-cloturee">Clôturée</span></p>
+          {% if drp.selected_invitation %}
+            <p class="mb-1 small">Fournisseur retenu : <strong class="text-dark">{{ drp.selected_invitation.fournisseur.nom }}</strong></p>
+            {% if drp.selected_invitation.facture %}
+              <p class="small mb-0 text-success"><i class="bi bi-check-circle me-1"></i>Facture enregistrée : <strong>{{ drp.selected_invitation.facture.montant|floatformat:0 }} FCFA</strong></p>
+            {% else %}
+              <p class="small mb-0 text-warning"><i class="bi bi-exclamation-circle me-1"></i>Facture non encore saisie.</p>
+            {% endif %}
+          {% else %}
+            <p class="small text-muted mb-0">Clôturée sans fournisseur désigné.</p>
+          {% endif %}
+        {% else %}
+          <p class="mb-0"><span class="badge badge-drp badge-drp-annulee">Annulée</span></p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if drp.statut == "en_cours" and proformas %}
+<div class="card drp-card mb-4">
+  <div class="card-header"><i class="bi bi-hand-thumbs-up me-2 text-success opacity-75"></i>Choisir le fournisseur retenu</div>
+  <div class="card-body">
+    <form method="post" class="drp-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="select_winner">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-8">
+          <label class="form-label" for="id_invitation">{{ select_form.invitation.label }}</label>
+          {{ select_form.invitation }}
+          {{ select_form.invitation.errors }}
+        </div>
+        <div class="col-md-4">
+          <button type="submit" class="btn btn-success w-100"><i class="bi bi-check2-circle me-1"></i>Valider le choix</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% elif drp.statut == "en_cours" %}
+<div class="alert alert-info border-0 shadow-sm mb-4"><i class="bi bi-info-circle me-2"></i>Aucune offre reçue pour l’instant.</div>
+{% endif %}
+
+<div class="card drp-card mb-4">
+  <div class="card-header"><i class="bi bi-arrow-repeat me-2 text-primary opacity-75"></i>Changer le statut</div>
+  <div class="card-body">
+    {% if statut_form.fields.statut.choices %}
+    <form method="post" class="row g-3 align-items-end drp-form">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="change_statut">
+      <div class="col-md-8">
+        <label class="form-label" for="id_statut">{{ statut_form.statut.label }}</label>
+        {{ statut_form.statut }}
+        {{ statut_form.statut.errors }}
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100">Mettre à jour</button>
+      </div>
+    </form>
+    <p class="small text-muted mt-3 mb-0"><i class="bi bi-lightbulb me-1"></i>« Clôturée » = fin de dossier <strong>sans</strong> fournisseur retenu. Pour désigner un fournisseur, utilisez la section ci-dessus lorsqu’il y a des offres.</p>
+    {% else %}
+    <p class="text-secondary mb-0">Aucun autre statut disponible.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="card drp-card mb-4">
+  <div class="card-header"><i class="bi bi-receipt me-2 text-primary opacity-75"></i>Toutes les offres</div>
+  <div class="drp-table-wrap table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead>
+        <tr>
+          <th>Fournisseur</th>
+          <th>Prix</th>
+          <th>Délai</th>
+          <th>PDF</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in proformas %}
+        <tr>
+          <td class="fw-medium">{{ p.invitation.fournisseur.nom }}</td>
+          <td>{{ p.prix }} FCFA</td>
+          <td>{{ p.delai_jours }} j</td>
+          <td><a href="{{ p.fichier.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary rounded-pill">Voir</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="text-center py-4 text-secondary">Aucune proforma.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card drp-card">
+  <div class="card-header"><i class="bi bi-envelope me-2 text-primary opacity-75"></i>Invitations</div>
+  <div class="drp-table-wrap table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Fournisseur</th>
+          <th>Statut</th>
+          <th>Expiration</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in invitations %}
+        <tr>
+          <td>{{ inv.fournisseur.nom }}</td>
+          <td>{{ inv.get_statut_display }}</td>
+          <td class="text-secondary small">{{ inv.expiration|date:"d/m/Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

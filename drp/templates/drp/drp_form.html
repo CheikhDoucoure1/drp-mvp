@@ -1,0 +1,60 @@
+{% extends "drp/base.html" %}
+{% block title %}{{ page_title|default:"DRP" }}{% endblock %}
+{% block saas_page_title %}{{ form_title|default:"DRP" }}{% endblock %}
+{% block saas_page_sub %}<p class="drp-topbar-sub d-none d-sm-block mb-0">Les champs sont enregistrés à la validation du formulaire.</p>{% endblock %}
+{% block content %}
+<div class="card drp-card">
+  <div class="card-body">
+    <form method="post" enctype="multipart/form-data" novalidate class="drp-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="mb-3">
+        <label class="form-label" for="id_titre">Titre</label>
+        {{ form.titre }}
+        {{ form.titre.errors }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_description">Description</label>
+        {{ form.description }}
+        {{ form.description.errors }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_fichier">Pièce jointe (PDF, optionnel)</label>
+        {{ form.fichier }}
+        {{ form.fichier.errors }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="id_date_cloture">Date de clôture</label>
+        {{ form.date_cloture }}
+        <div class="form-text">Après cette date, les fournisseurs ne pourront plus envoyer de proforma.</div>
+        {{ form.date_cloture.errors }}
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Domaines</label>
+        <div class="drp-check-area">
+          {{ form.domaines }}
+        </div>
+        {{ form.domaines.errors }}
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label" for="id_poids_prix">Poids critère prix</label>
+          {{ form.poids_prix }}
+          {{ form.poids_prix.errors }}
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label" for="id_poids_delai">Poids critère délai</label>
+          {{ form.poids_delai }}
+          {{ form.poids_delai.errors }}
+        </div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 pt-2 border-top mt-2">
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>{{ submit_label|default:"Enregistrer" }}</button>
+        <a href="{{ cancel_href }}" class="btn btn-outline-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

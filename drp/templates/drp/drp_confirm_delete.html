@@ -1,0 +1,18 @@
+{% extends "drp/base.html" %}
+{% block title %}Supprimer la DRP{% endblock %}
+{% block saas_page_title %}Supprimer une DRP{% endblock %}
+{% block saas_page_sub %}<p class="drp-topbar-sub d-none d-sm-block mb-0">Action irréversible</p>{% endblock %}
+{% block content %}
+<div class="card drp-card mx-auto" style="max-width: 32rem;">
+  <div class="card-body p-4">
+    <div class="text-danger mb-3"><i class="bi bi-exclamation-octagon fs-3"></i></div>
+    <h1 class="h5 fw-bold mb-3">Supprimer la DRP</h1>
+    <p class="text-secondary">Confirmer la suppression de <strong class="text-dark">{{ drp.titre }}</strong> ? Cette action est irréversible.</p>
+    <form method="post" class="d-flex flex-wrap gap-2 mt-4">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Supprimer</button>
+      <a href="{% url 'drp:drp_detail' drp.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

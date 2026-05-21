@@ -1,0 +1,44 @@
+{% extends "drp/base.html" %}
+{% block title %}Connexion{% endblock %}
+{% block content %}
+<div class="drp-auth-shell">
+  <div class="drp-auth-card card drp-card">
+    <div class="card-body">
+      <div class="text-center mb-4">
+        <div class="rounded-3 d-inline-flex align-items-center justify-content-center text-white mb-3" style="width:3.25rem;height:3.25rem;background:linear-gradient(135deg,#2563eb,#6366f1);">
+          <i class="bi bi-shield-lock fs-4"></i>
+        </div>
+        <h1 class="drp-auth-title mb-1">Connexion</h1>
+        <p class="text-secondary small mb-0">Espace Responsable Achat</p>
+      </div>
+      {% if request.user.is_authenticated %}
+      <div class="alert alert-warning border-0 small text-start mb-4">
+        Vous êtes connecté en tant que <strong>{{ request.user.get_username }}</strong>, sans rôle « Responsable Achat » sur cette application.
+        Déconnectez-vous pour utiliser un compte autorisé.
+      </div>
+      <div class="d-grid gap-2">
+        <a href="{% url 'drp:logout' %}" class="btn btn-primary py-2">Se déconnecter</a>
+      </div>
+      {% else %}
+      <form method="post" action="" class="drp-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger small">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div class="mb-3">
+          <label class="form-label" for="id_username">{{ form.username.label }}</label>
+          {{ form.username }}
+          {{ form.username.errors }}
+        </div>
+        <div class="mb-4">
+          <label class="form-label" for="id_password">{{ form.password.label }}</label>
+          {{ form.password }}
+          {{ form.password.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">Se connecter</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "drp/base.html" %}
+{% block title %}Désactiver le fournisseur{% endblock %}
+{% block saas_page_title %}Désactiver un fournisseur{% endblock %}
+{% block saas_page_sub %}<p class="drp-topbar-sub d-none d-sm-block mb-0">Traçabilité conservée</p>{% endblock %}
+{% block content %}
+<div class="card drp-card mx-auto" style="max-width: 36rem;">
+  <div class="card-body p-4">
+    <div class="text-warning mb-3"><i class="bi bi-pause-circle fs-3"></i></div>
+    <h1 class="h5 fw-bold mb-3">Désactiver le fournisseur</h1>
+    <p class="text-secondary">Confirmer la désactivation de <strong class="text-dark">{{ fournisseur.nom }}</strong> ({{ fournisseur.email }}) ?</p>
+    <div class="alert alert-info border-0 small mb-0">
+      <i class="bi bi-info-circle me-1"></i>
+      Aucune donnée n’est effacée : invitations et proformas restent liées à l’historique des DRP. Ce fournisseur ne sera plus proposé pour les <strong>nouvelles</strong> invitations.
+    </div>
+    <form method="post" class="d-flex flex-wrap gap-2 mt-4">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-warning text-dark">Désactiver</button>
+      <a href="{% url 'drp:fournisseur_list' %}" class="btn btn-outline-secondary">Annuler</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
