@@ -1,0 +1,73 @@
+{% extends "drp/base.html" %}
+{% block title %}Réponse DRP{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card drp-card shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <div class="d-flex align-items-start gap-3 mb-4">
+          <div class="rounded-3 d-flex align-items-center justify-content-center text-white flex-shrink-0" style="width:3rem;height:3rem;background:linear-gradient(135deg,#2563eb,#0ea5e9);">
+            <i class="bi bi-send fs-4"></i>
+          </div>
+          <div>
+            <h1 class="h4 fw-bold mb-1">Demande de prix</h1>
+            <p class="text-secondary mb-0">{{ invitation.drp.titre }}</p>
+          </div>
+        </div>
+        <div class="rounded-3 p-3 mb-4 small" style="background:#f8fafc;border:1px solid rgba(15,23,42,0.08);">
+          <i class="bi bi-clock me-1 text-primary"></i>Réponse attendue avant le <strong>{{ invitation.drp.date_cloture|date:"d/m/Y H:i" }}</strong>
+          <span class="d-block mt-2 text-muted"><i class="bi bi-shield-lock me-1"></i>Ne partagez pas ce lien.</span>
+        </div>
+
+        {% if existing_proforma %}
+        <div class="alert alert-success border-0 shadow-sm">
+          <p class="fw-semibold mb-2"><i class="bi bi-check-circle me-1"></i>Proforma déjà transmise</p>
+          <p class="small mb-2 text-secondary">Le {{ existing_proforma.submitted_at|date:"d/m/Y H:i" }}</p>
+          <ul class="mb-0 small list-unstyled">
+            <li><i class="bi bi-cash-coin me-1"></i>{{ existing_proforma.prix }} FCFA</li>
+            <li><i class="bi bi-calendar-week me-1"></i>{{ existing_proforma.delai_jours }} jours</li>
+            <li class="mt-2"><a href="{{ existing_proforma.fichier.url }}" class="btn btn-sm btn-outline-primary rounded-pill" target="_blank" rel="noopener"><i class="bi bi-file-earmark-pdf me-1"></i>Votre PDF</a></li>
+          </ul>
+        </div>
+        {% elif readonly %}
+        <div class="alert alert-warning border-0 shadow-sm">
+          {% if invitation.drp.statut != "en_cours" %}
+            <i class="bi bi-slash-circle me-2"></i>Cette demande n’est plus ouverte (statut : {{ invitation.drp.get_statut_display }}). Les réponses ne sont plus acceptées.
+          {% else %}
+            <i class="bi bi-hourglass-bottom me-2"></i>Ce lien a expiré ou n’est plus utilisable.
+          {% endif %}
+        </div>
+        {% else %}
+        <form method="post" enctype="multipart/form-data" class="drp-form">
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label class="form-label" for="id_prix">{{ form.prix.label }}</label>
+            {{ form.prix }}
+            {{ form.prix.errors }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="id_delai_jours">{{ form.delai_jours.label }}</label>
+            {{ form.delai_jours }}
+            {{ form.delai_jours.errors }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="id_commentaire">{{ form.commentaire.label }}</label>
+            {{ form.commentaire }}
+            {{ form.commentaire.errors }}
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="id_fichier">{{ form.fichier.label }}</label>
+            {{ form.fichier }}
+            {{ form.fichier.errors }}
+          </div>
+          <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-upload me-2"></i>Envoyer la proforma</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

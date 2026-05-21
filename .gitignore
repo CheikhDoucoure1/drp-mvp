@@ -1,0 +1,37 @@
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+
+# Secrets et configuration locale (ne jamais versionner)
+.env
+.env.*
+!.env.example
+
+# Base de données et fichiers utilisateurs
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+
+# Logs et outils
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*.local.*
+
+# Clés / certificats
+*.pem
+*.key
+secrets/

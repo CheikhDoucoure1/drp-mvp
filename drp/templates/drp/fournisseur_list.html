@@ -1,0 +1,58 @@
+{% extends "drp/base.html" %}
+{% block title %}Fournisseurs{% endblock %}
+{% block saas_page_title %}Fournisseurs{% endblock %}
+{% block saas_page_sub %}<p class="drp-topbar-sub d-none d-sm-block mb-0">Contacts invités selon les domaines des DRP</p>{% endblock %}
+{% block saas_topbar_actions %}
+<a href="{% url 'drp:fournisseur_create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Nouveau fournisseur</a>
+{% endblock %}
+{% block content %}
+
+<div class="card drp-card">
+  <div class="drp-table-wrap table-responsive">
+    <table class="table table-hover mb-0 align-middle">
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Actif</th>
+          <th>Domaines</th>
+          <th class="text-end" style="min-width: 11rem;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in fournisseurs %}
+        <tr>
+          <td class="fw-medium">{{ f.nom }}</td>
+          <td class="small"><a href="mailto:{{ f.email }}">{{ f.email }}</a></td>
+          <td class="text-secondary small">{{ f.telephone|default:"—" }}</td>
+          <td>
+            {% if f.actif %}
+              <span class="badge badge-drp badge-drp-actif">Oui</span>
+            {% else %}
+              <span class="badge badge-drp badge-drp-inactif">Non</span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">
+            {% for d in f.domaines.all %}{{ d.nom }}{% if not forloop.last %}, {% endif %}{% empty %}—{% endfor %}
+          </td>
+          <td class="text-end">
+            <a href="{% url 'drp:fournisseur_update' f.pk %}" class="btn btn-sm btn-outline-primary">Modifier</a>
+            {% if f.actif %}
+            <a href="{% url 'drp:fournisseur_desactiver' f.pk %}" class="btn btn-sm btn-outline-warning">Désactiver</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-5 text-secondary">
+            <i class="bi bi-building d-block fs-2 mb-2 opacity-25"></i>
+            Aucun fournisseur. Ajoutez des fiches pour les inviter aux DRP.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "drp/base.html" %}
+{% block title %}{{ page_heading|default:"Domaine" }}{% endblock %}
+{% block saas_page_title %}{{ page_heading|default:"Domaine" }}{% endblock %}
+{% block content %}
+<div class="card drp-card mx-auto" style="max-width: 28rem;">
+  <div class="card-body">
+    <form method="post" novalidate class="drp-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="mb-4">
+        <label class="form-label" for="id_nom">Nom du domaine</label>
+        {{ form.nom }}
+        {{ form.nom.errors }}
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary">{{ submit_label|default:"Enregistrer" }}</button>
+        <a href="{% url 'drp:domaine_list' %}" class="btn btn-outline-secondary">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

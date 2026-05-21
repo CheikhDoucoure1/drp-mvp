@@ -1,0 +1,17 @@
+{% extends "drp/base.html" %}
+{% block title %}Déconnexion{% endblock %}
+{% block content %}
+<div class="drp-auth-shell">
+  <div class="drp-auth-card card drp-card">
+    <div class="card-body text-center">
+      <h1 class="drp-auth-title mb-2">Se déconnecter ?</h1>
+      <p class="text-secondary small mb-4">Vous pourrez vous reconnecter avec un autre compte si besoin.</p>
+      <form method="post" action="{% url 'drp:logout' %}" class="d-grid gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary py-2">Confirmer la déconnexion</button>
+        <a href="{% url 'drp:login' %}" class="btn btn-outline-secondary">Annuler</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

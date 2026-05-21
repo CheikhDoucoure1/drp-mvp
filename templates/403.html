@@ -1,0 +1,20 @@
+{% extends "drp/base.html" %}
+{% block title %}Accès refusé{% endblock %}
+{% block content %}
+<div class="row justify-content-center py-4">
+  <div class="col-md-8 col-lg-6">
+    <div class="card drp-card text-center p-4 p-md-5">
+      <div class="text-warning mb-3"><i class="bi bi-lock display-4"></i></div>
+      <h1 class="h4 fw-bold mb-3">Accès refusé</h1>
+      <p class="text-secondary mb-0">Votre compte n’a pas le rôle <strong class="text-dark">Responsable Achat</strong> (ou n’est pas administrateur technique). Demandez à un administrateur de vous ajouter au groupe Django « Responsable Achat ».</p>
+      <hr class="my-4 opacity-25">
+      <div class="d-flex flex-column flex-sm-row gap-2 justify-content-center align-items-stretch">
+        {% if request.user.is_authenticated %}
+        <a href="{% url 'drp:logout' %}" class="btn btn-primary rounded-pill">Se déconnecter</a>
+        {% endif %}
+        <a href="{% url 'drp:login' %}" class="btn btn-outline-secondary rounded-pill">Page de connexion</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

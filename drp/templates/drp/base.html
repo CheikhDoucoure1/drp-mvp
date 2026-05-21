@@ -1,0 +1,147 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}DRP{% endblock %} — Plateforme achats</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource-variable/inter@5.2.5/index.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="{% static 'drp/theme.css' %}">
+</head>
+<body class="drp-body d-flex flex-column min-vh-100">
+{% if request.user.is_authenticated and show_buyer_nav %}
+  <div class="drp-saas d-flex flex-grow-1 w-100">
+    <aside class="offcanvas-lg offcanvas-start drp-sidebar border-end" tabindex="-1" id="drpSidebar" aria-labelledby="drpSidebarLabel">
+      <div class="offcanvas-header border-bottom d-lg-none py-2">
+        <span class="offcanvas-title fw-semibold" id="drpSidebarLabel">Menu</span>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#drpSidebar" aria-label="Fermer"></button>
+      </div>
+      <div class="offcanvas-body p-0 d-flex flex-column drp-sidebar-inner">
+        <a class="drp-sidebar-brand" href="{% url 'drp:dashboard' %}">
+          <span class="drp-sidebar-brand-mark">D</span>
+          <span>
+            <span class="drp-sidebar-brand-text">DRP</span>
+            <span class="drp-sidebar-brand-sub">Demandes de prix</span>
+          </span>
+        </a>
+        <nav class="drp-sidebar-nav px-1">
+          {% if request.resolver_match %}
+          {% with u=request.resolver_match.url_name %}
+          <a class="drp-side-link {% if u == 'dashboard' %}active{% endif %}" href="{% url 'drp:dashboard' %}">
+            <i class="bi bi-grid-1x2"></i>Tableau de bord
+          </a>
+          <a class="drp-side-link {% if u == 'domaine_list' or u == 'domaine_create' or u == 'domaine_update' or u == 'domaine_delete' %}active{% endif %}" href="{% url 'drp:domaine_list' %}">
+            <i class="bi bi-tags"></i>Domaines
+          </a>
+          <a class="drp-side-link {% if u == 'fournisseur_list' or u == 'fournisseur_create' or u == 'fournisseur_update' or u == 'fournisseur_desactiver' %}active{% endif %}" href="{% url 'drp:fournisseur_list' %}">
+            <i class="bi bi-building"></i>Fournisseurs
+          </a>
+          <a class="drp-side-link {% if u == 'analyse_comparative' %}active{% endif %}" href="{% url 'drp:analyse_comparative' %}">
+            <i class="bi bi-stars"></i>Analyse IA
+          </a>
+          <a class="btn drp-side-cta {% if u == 'drp_create' %}shadow-sm border border-primary border-opacity-25{% endif %}" href="{% url 'drp:drp_create' %}">
+            <i class="bi bi-plus-lg me-1"></i>Nouvelle DRP
+          </a>
+          {% endwith %}
+          {% else %}
+          <a class="drp-side-link" href="{% url 'drp:dashboard' %}"><i class="bi bi-grid-1x2"></i>Tableau de bord</a>
+          <a class="drp-side-link" href="{% url 'drp:domaine_list' %}"><i class="bi bi-tags"></i>Domaines</a>
+          <a class="drp-side-link" href="{% url 'drp:fournisseur_list' %}"><i class="bi bi-building"></i>Fournisseurs</a>
+          <a class="drp-side-link" href="{% url 'drp:analyse_comparative' %}"><i class="bi bi-stars"></i>Analyse IA</a>
+          <a class="btn drp-side-cta" href="{% url 'drp:drp_create' %}"><i class="bi bi-plus-lg me-1"></i>Nouvelle DRP</a>
+          {% endif %}
+        </nav>
+        <div class="drp-sidebar-footer">
+          <div class="drp-user-chip mb-2">
+            <span class="drp-user-avatar">{% if request.user.first_name %}{{ request.user.first_name|slice:":1"|upper }}{% else %}{{ request.user.get_username|slice:":1"|upper }}{% endif %}</span>
+            <div class="drp-user-meta">
+              <div class="drp-user-name">{{ request.user.get_short_name|default:request.user.get_username }}</div>
+              <div class="drp-user-role">Responsable achat</div>
+            </div>
+          </div>
+          {% if request.user.is_superuser %}
+          <a class="drp-side-link small py-2 mb-1" href="{% url 'admin:index' %}">
+            <i class="bi bi-sliders"></i>Administration Django
+          </a>
+          {% endif %}
+          <form action="{% url 'drp:logout' %}" method="post" class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">
+              <i class="bi bi-box-arrow-right me-1"></i>Déconnexion
+            </button>
+          </form>
+        </div>
+      </div>
+    </aside>
+
+    <div class="drp-saas-workspace flex-grow-1 d-flex flex-column min-vh-100">
+      <header class="drp-topbar">
+        <div class="d-flex align-items-center gap-2 min-w-0 flex-grow-1">
+          <button class="btn btn-light border d-lg-none flex-shrink-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#drpSidebar" aria-controls="drpSidebar" aria-label="Ouvrir le menu">
+            <i class="bi bi-list fs-5"></i>
+          </button>
+          <div class="min-w-0 flex-grow-1">
+            <h1 class="drp-topbar-heading text-truncate">{% block saas_page_title %}Accueil{% endblock %}</h1>
+            {% block saas_page_sub %}{% endblock %}
+          </div>
+        </div>
+        <div class="drp-topbar-actions flex-shrink-0 d-flex align-items-center gap-2">
+          {% block saas_topbar_actions %}{% endblock %}
+        </div>
+      </header>
+      <div class="drp-saas-content">
+{% elif request.user.is_authenticated %}
+  <header class="drp-minimal-bar">
+    <a class="drp-sidebar-brand text-decoration-none" href="{% url 'drp:login' %}">
+      <span class="drp-sidebar-brand-mark">D</span>
+      <span class="drp-sidebar-brand-text">DRP</span>
+    </a>
+    <div class="d-flex align-items-center gap-2">
+      {% if request.user.is_superuser %}
+      <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin:index' %}">Admin</a>
+      {% endif %}
+      <form action="{% url 'drp:logout' %}" method="post" class="m-0">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-sm btn-outline-secondary">Déconnexion</button>
+      </form>
+    </div>
+  </header>
+  <main class="drp-public-main flex-grow-1">
+{% else %}
+  <header class="drp-public-nav d-flex align-items-center justify-content-between">
+    <a class="drp-sidebar-brand text-decoration-none" href="{% url 'drp:login' %}">
+      <span class="drp-sidebar-brand-mark">D</span>
+      <span class="drp-sidebar-brand-text">DRP</span>
+    </a>
+  </header>
+  <main class="drp-public-main flex-grow-1">
+{% endif %}
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'debug' %}secondary{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-3" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+{% block content %}{% endblock %}
+
+{% if request.user.is_authenticated and show_buyer_nav %}
+      </div>
+      <div class="drp-footer-mini mt-auto d-none d-lg-block">DRP — usage interne</div>
+    </div>
+  </div>
+{% else %}
+  </main>
+{% endif %}
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  {% if request.user.is_authenticated and show_buyer_nav %}
+  <script src="{% static 'drp/sidebar-offcanvas.js' %}"></script>
+  {% endif %}
+</body>
+</html>

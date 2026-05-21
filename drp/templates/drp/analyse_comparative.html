@@ -1,0 +1,128 @@
+{% extends "drp/base.html" %}
+{% block title %}Analyse comparative des prix{% endblock %}
+{% block saas_page_title %}Analyse IA — Prix par domaine{% endblock %}
+{% block saas_page_sub %}
+<p class="drp-topbar-sub d-none d-sm-block mb-0">
+  Comparaison des prix proforma fournisseurs vs montants réellement facturés, par domaine.
+</p>
+{% endblock %}
+{% block saas_topbar_actions %}
+<a href="{% url 'drp:analyse_comparative' %}" class="btn btn-outline-secondary btn-sm">
+  <i class="bi bi-arrow-clockwise me-1"></i>Actualiser l'analyse
+</a>
+{% endblock %}
+{% block content %}
+
+{% if not analyses %}
+<div class="alert alert-info border-0 shadow-sm">
+  <i class="bi bi-info-circle me-2"></i>
+  Aucune donnée disponible. Créez des DRP, invitez des fournisseurs à soumettre leurs proformas, puis saisissez les factures réelles pour voir l'analyse.
+</div>
+{% endif %}
+
+{% for analyse in analyses %}
+<div class="card drp-card mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <div>
+      <i class="bi bi-tags me-2 text-primary opacity-75"></i>
+      <span class="fw-semibold">{{ analyse.domaine.nom }}</span>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <span class="badge bg-secondary-subtle text-secondary border">
+        {{ analyse.nb_proformas }} proforma{{ analyse.nb_proformas|pluralize }}
+      </span>
+      <span class="badge {% if analyse.nb_factures > 0 %}bg-success-subtle text-success border-success{% else %}bg-light text-secondary border{% endif %} border">
+        {{ analyse.nb_factures }} facture{{ analyse.nb_factures|pluralize }}
+      </span>
+      {% if analyse.moy_ecart_pct is not None %}
+        <span class="badge {% if analyse.moy_ecart_pct > 5 %}bg-danger-subtle text-danger border-danger{% elif analyse.moy_ecart_pct > 0 %}bg-warning-subtle text-warning border-warning{% else %}bg-success-subtle text-success border-success{% endif %} border fw-semibold">
+          Écart moy. {% if analyse.moy_ecart_pct >= 0 %}+{% endif %}{{ analyse.moy_ecart_pct|floatformat:1 }}%
+        </span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card-body p-0">
+    <!-- Statistiques rapides -->
+    {% if analyse.moy_proforma or analyse.moy_facture %}
+    <div class="px-3 px-md-4 pt-3 pb-2">
+      <div class="row g-3">
+        {% if analyse.moy_proforma %}
+        <div class="col-sm-4">
+          <p class="text-secondary small mb-1">Prix moyen proforma</p>
+          <p class="fw-semibold mb-0">{{ analyse.moy_proforma|floatformat:0 }} FCFA</p>
+        </div>
+        {% endif %}
+        {% if analyse.moy_facture %}
+        <div class="col-sm-4">
+          <p class="text-secondary small mb-1">Montant moyen facturé</p>
+          <p class="fw-semibold mb-0">{{ analyse.moy_facture|floatformat:0 }} FCFA</p>
+        </div>
+        {% endif %}
+        {% if analyse.moy_ecart_pct is not None %}
+        <div class="col-sm-4">
+          <p class="text-secondary small mb-1">Écart moyen</p>
+          <p class="fw-semibold mb-0 {% if analyse.moy_ecart_pct > 5 %}text-danger{% elif analyse.moy_ecart_pct > 0 %}text-warning{% else %}text-success{% endif %}">
+            {% if analyse.moy_ecart_pct >= 0 %}+{% endif %}{{ analyse.moy_ecart_pct|floatformat:1 }}%
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <hr class="my-0">
+    {% endif %}
+
+    <!-- Tableau détaillé -->
+    <div class="drp-table-wrap table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>DRP</th>
+            <th>Fournisseur</th>
+            <th class="text-end">Prix proforma</th>
+            <th class="text-end">Montant facturé</th>
+            <th class="text-end">Écart</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in analyse.lignes %}
+          <tr>
+            <td class="text-truncate" style="max-width:200px;" title="{{ ligne.drp_titre }}">{{ ligne.drp_titre }}</td>
+            <td class="fw-medium">{{ ligne.fournisseur_nom }}</td>
+            <td class="text-end">{{ ligne.prix_proforma|floatformat:0 }} FCFA</td>
+            <td class="text-end">
+              {% if ligne.montant_facture %}
+                {{ ligne.montant_facture|floatformat:0 }} FCFA
+              {% else %}
+                <span class="text-secondary fst-italic">Non saisie</span>
+              {% endif %}
+            </td>
+            <td class="text-end fw-semibold">
+              {% if ligne.ecart_pct is not None %}
+                <span class="{% if ligne.ecart_pct > 5 %}text-danger{% elif ligne.ecart_pct > 0 %}text-warning{% else %}text-success{% endif %}">
+                  {% if ligne.ecart_pct >= 0 %}+{% endif %}{{ ligne.ecart_pct|floatformat:1 }}%
+                </span>
+              {% else %}
+                <span class="text-secondary">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Analyse IA -->
+    {% if analyse.commentaire_ia %}
+    <div class="px-3 px-md-4 py-3 border-top bg-light rounded-bottom">
+      <p class="small fw-semibold text-primary mb-2">
+        <i class="bi bi-stars me-1"></i>Analyse IA
+      </p>
+      <p class="small text-secondary mb-0" style="line-height:1.7;">{{ analyse.commentaire_ia }}</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% endblock %}
