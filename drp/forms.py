@@ -84,8 +84,6 @@ class DRPForm(forms.ModelForm):
             "fichier",
             "domaines",
             "date_cloture",
-            "poids_prix",
-            "poids_delai",
         )
         widgets = {
             "titre": forms.TextInput(attrs={"class": "form-control"}),
@@ -95,8 +93,6 @@ class DRPForm(forms.ModelForm):
                 attrs={"type": "datetime-local", "class": "form-control"},
                 format="%Y-%m-%dT%H:%M",
             ),
-            "poids_prix": forms.NumberInput(attrs={"class": "form-control", "min": 1, "max": 100}),
-            "poids_delai": forms.NumberInput(attrs={"class": "form-control", "min": 1, "max": 100}),
         }
 
     def __init__(self, *args, **kwargs):

@@ -38,18 +38,7 @@
         </div>
         {{ form.domaines.errors }}
       </div>
-      <div class="row">
-        <div class="col-md-6 mb-3">
-          <label class="form-label" for="id_poids_prix">Poids critère prix</label>
-          {{ form.poids_prix }}
-          {{ form.poids_prix.errors }}
-        </div>
-        <div class="col-md-6 mb-3">
-          <label class="form-label" for="id_poids_delai">Poids critère délai</label>
-          {{ form.poids_delai }}
-          {{ form.poids_delai.errors }}
-        </div>
-      </div>
+
       <div class="d-flex flex-wrap gap-2 pt-2 border-top mt-2">
         <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>{{ submit_label|default:"Enregistrer" }}</button>
         <a href="{{ cancel_href }}" class="btn btn-outline-secondary">Annuler</a>
